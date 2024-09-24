@@ -9,3 +9,8 @@ class Processor:
         # self.db_writer.insert_document(document)
         print(document)
 
+    def processWebcontent(self, document: dict):
+        print(document)
+
+    def processPdf(self, document: dict):
+        print(document)
