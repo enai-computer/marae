@@ -9,6 +9,9 @@ class Processor:
     def __init__(self):
         self.db_writer = DatabaseWriter()
 
+    def delete_document(self, document_id: UUID):
+        self.db_writer.delete_document(str(document_id))
+
     def processNote(self, id: UUID, document: dict):
         document['id'] = str(id)
         document['type'] = 'note'
