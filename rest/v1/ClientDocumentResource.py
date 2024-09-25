@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, BackgroundTasks
 from uuid import UUID
 from typing import Annotated
 from data.Processors import Processor
@@ -7,8 +7,8 @@ from data.Processors import Processor
 router = APIRouter(prefix="/v1", tags=["v1"])
 
 @router.put("/{user_id}/webContent/{web_content_id}")
-def update_web_content(user_id: UUID, web_content_id: UUID, web_content: dict, processor: Annotated[Processor, Depends(Processor)]):
-    processor.processWebcontent(web_content)
+def update_web_content(user_id: UUID, web_content_id: UUID, web_content: dict, background_tasks: BackgroundTasks, processor: Annotated[Processor, Depends(Processor)]):
+    background_tasks.add_task(processor.processWebcontent, web_content_id, web_content)
     return {"status": "ok"}
 
 @router.put("/{user_id}/note/{note_id}")
