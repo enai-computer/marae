@@ -13,7 +13,7 @@ def update_web_content(user_id: UUID, web_content_id: UUID, web_content: dict, p
 
 @router.put("/{user_id}/note/{note_id}")
 def update_note(user_id: UUID, note_id: UUID, note: dict, processor: Annotated[Processor, Depends(Processor)]):
-    processor.processNote(note)
+    processor.processNote(note_id, note)
     return {"status": "ok"}
 
 @router.put("/{user_id}/pdf/{pdf_id}")
@@ -23,17 +23,17 @@ def update_pdf(user_id: UUID, pdf_id: UUID, pdf: dict, processor: Annotated[Proc
 
 # Delete
 @router.delete("/{user_id}/webContent/{web_content_id}")
-def delete_web_content(user_id: UUID, web_content_id: UUID):
+def delete_web_content(user_id: UUID, web_content_id: UUID, processor: Annotated[Processor, Depends(Processor)]):
     print(f"Deleting web content {web_content_id} for user {user_id}")
     return {"status": "ok"}
 
 @router.delete("/{user_id}/note/{note_id}")
-def delete_note(user_id: UUID, note_id: UUID):
+def delete_note(user_id: UUID, note_id: UUID, processor: Annotated[Processor, Depends(Processor)]):
     print(f"Deleting note {note_id} for user {user_id}")
     return {"status": "ok"}
 
 @router.delete("/{user_id}/pdf/{pdf_id}")
-def delete_pdf(user_id: UUID, pdf_id: UUID):
+def delete_pdf(user_id: UUID, pdf_id: UUID, processor: Annotated[Processor, Depends(Processor)]):
     print(f"Deleting pdf {pdf_id} for user {user_id}")
     return {"status": "ok"}
 

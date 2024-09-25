@@ -8,6 +8,7 @@ class DatabaseWriter:
         self.db_connection = None
         self.db_cursor = None
         self.connect_to_db()
+        self.initDB()
 
     def connect_to_db(self):
         try:
@@ -26,8 +27,12 @@ class DatabaseWriter:
         DocumentTable.create_table(self.db_cursor)
         self.db_connection.commit()
 
-    def insert_document(self, document: dict):
-        DocumentTable.insert_document(self.db_cursor, document)
+    def upsert_document(self, document: dict):
+        DocumentTable.upsert_document(self.db_cursor, document)
+        self.db_connection.commit()
+
+    def delete_document(self, document_id: str):
+        DocumentTable.delete_document(self.db_cursor, document_id)
         self.db_connection.commit()
 
     def close(self):

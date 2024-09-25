@@ -16,8 +16,18 @@ class DocumentTable:
             )
         """)
     
-    def insert_document(cursor: Cursor, document: dict):
+    def upsert_document(cursor: Cursor, document: dict):
         cursor.execute("""
             INSERT INTO document (id, section_number, space_id, type, title, content, url, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        """, (document['id'], document['section_number'], document['spaceId'], document['type'], document['title'], document['content'], document['url'], document['updated_at']))
+            ON CONFLICT(id, section_number) DO UPDATE SET
+                title = excluded.title,
+                content = excluded.content,
+                url = excluded.url,
+                updated_at = excluded.updated_at
+        """, (document['id'], document['section_number'], document['spaceId'], document['type'], document['title'], document['content'], document['url'], document['updatedAt']))
+
+    def delete_document(cursor: Cursor, document_id: str):
+        cursor.execute("""
+            DELETE FROM document WHERE id = ?
+        """, (document_id,))
