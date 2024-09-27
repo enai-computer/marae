@@ -1,3 +1,6 @@
 fastapi
 beautifulsoup4
 requests
+PyPDF2
+pinecone
+python-dotenv

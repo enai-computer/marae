@@ -1,4 +1,5 @@
 from sqlite3 import Cursor
+import time
 
 class DocumentTable:
     def create_table(cursor: Cursor):
@@ -12,6 +13,7 @@ class DocumentTable:
                 content TEXT NOT NULL,
                 url TEXT,
                 updated_at REAL NOT NULL,
+                processed_at REAL,
                 PRIMARY KEY (id, section_number)
             )
         """)
@@ -24,10 +26,34 @@ class DocumentTable:
                 title = excluded.title,
                 content = excluded.content,
                 url = excluded.url,
-                updated_at = excluded.updated_at
+                updated_at = excluded.updated_at,
+                processed_at = null
         """, (document['id'], document['section_number'], document['spaceId'], document['type'], document['title'], document['content'], document['url'], document['updatedAt']))
 
     def delete_document(cursor: Cursor, document_id: str):
         cursor.execute("""
             DELETE FROM document WHERE id = ?
         """, (document_id,))
+
+    def fetch_non_processed_documents(cursor: Cursor, limit: int = 10) -> list[dict]:
+        cursor.execute("""
+            SELECT section_number, id, content, space_id, type, title FROM document WHERE processed_at IS NULL LIMIT ?
+        """, (limit,))
+        rows = cursor.fetchall()
+        return [
+            {
+                'section_number': row[0],
+                'id': row[1],
+                'content': row[2],
+                'space_id': row[3],
+                'type': row[4],
+                'title': row[5]
+            }
+            for row in rows
+        ]
+    
+    def mark_documents_as_processed(cursor: Cursor, document_ids: list[(str, int)]):
+        for doc_id in document_ids:
+            cursor.execute("""
+                UPDATE document SET processed_at = ? WHERE id = ? AND section_number = ?
+            """, (time.time(), doc_id[0], doc_id[1]))   
