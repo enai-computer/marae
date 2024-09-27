@@ -20,6 +20,9 @@ class UserDataTransformer:
         document['url'] = None
         section_number = 0
         extracted_content = UserDataTransformer.chunk_content(document['content'])
+        # if title is not in document
+        if 'title' not in document:
+            document['title'] = extracted_content[0][:100]
         for content in extracted_content:
             document['content'] = content
             document['section_number'] = section_number

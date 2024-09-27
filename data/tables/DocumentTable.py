@@ -19,6 +19,9 @@ class DocumentTable:
         """)
     
     def upsert_document(cursor: Cursor, document: dict):
+        if not document['content']:
+            return
+        
         cursor.execute("""
             INSERT INTO document (id, section_number, space_id, type, title, content, url, updated_at)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
