@@ -60,3 +60,13 @@ class DocumentTable:
             cursor.execute("""
                 UPDATE document SET processed_at = ? WHERE id = ? AND section_number = ?
             """, (time.time(), doc_id[0], doc_id[1]))   
+
+    def fetch_all_id_section_numbers(cursor: Cursor, document_id: str) -> list[str]:
+        cursor.execute("""
+            SELECT section_number, id FROM document WHERE id = ?
+        """, (document_id,))
+        rows = cursor.fetchall()
+        return [
+            str(row[0]) + "-" + str(row[1])
+            for row in rows
+        ]

@@ -2,6 +2,8 @@ import os
 from pinecone import Pinecone
 from data.dal.DatabaseWriter import DatabaseWriter
 import time
+from uuid import UUID
+
 class Transform2VectorDB:
 
     def __init__(self):
@@ -10,6 +12,12 @@ class Transform2VectorDB:
         self.index = self.pc.Index("multilingual-e5-large")
         self.namespace = "marae-test-space"
         self.db_writer = DatabaseWriter()
+
+    def delete_document(self, document_id: UUID):
+        vector_db_ids = self.db_writer.fetch_vector_db_ids(str(document_id))
+        print(f"[INFO]: deleting ids: {vector_db_ids} for document: {document_id}")
+        self.index.delete(ids=vector_db_ids, namespace=self.namespace)
+        self.db_writer.delete_document(str(document_id))
 
     def sync_all_to_vector_db(self):
         print("[INFO]: starting sync")

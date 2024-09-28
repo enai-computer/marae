@@ -40,5 +40,8 @@ class DatabaseWriter:
         DocumentTable.mark_documents_as_processed(self.db_cursor, document_ids)
         self.db_connection.commit()
 
+    def fetch_vector_db_ids(self, document_id: str) -> list[str]:
+        return DocumentTable.fetch_all_id_section_numbers(self.db_cursor, document_id)
+
     def close(self):
         self.db_connection.close()
