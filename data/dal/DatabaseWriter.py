@@ -43,5 +43,8 @@ class DatabaseWriter:
     def fetch_vector_db_ids(self, document_id: str) -> list[str]:
         return DocumentTable.fetch_all_id_section_numbers(self.db_cursor, document_id)
 
+    def fetch_content(self, document_id: str, section_number: int) -> str:
+        return DocumentTable.fetch_content(self.db_cursor, document_id, section_number)
+    
     def close(self):
         self.db_connection.close()

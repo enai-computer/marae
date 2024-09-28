@@ -15,7 +15,6 @@ class Transform2VectorDB:
 
     def delete_document(self, document_id: UUID):
         vector_db_ids = self.db_writer.fetch_vector_db_ids(str(document_id))
-        print(f"[INFO]: deleting ids: {vector_db_ids} for document: {document_id}")
         self.index.delete(ids=vector_db_ids, namespace=self.namespace)
         self.db_writer.delete_document(str(document_id))
 
@@ -28,12 +27,14 @@ class Transform2VectorDB:
         while 0 < synced_count:
             synced_count = self.sync_to_vector_db()
             total_synced_count += synced_count
+            wait_time = 0.1
+            time.sleep(wait_time)
         print("[INFO]: finished sync, uploaded ", total_synced_count, " documents. After ", time.time() - start_time, " seconds")
 
         
     def sync_to_vector_db(self) -> int:
 
-        documents = self.db_writer.fetch_non_processed_documents()
+        documents = self.db_writer.fetch_non_processed_documents(limit=40)
         if len(documents) == 0:
             return 0
         

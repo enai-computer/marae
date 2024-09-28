@@ -2,5 +2,5 @@ fastapi
 beautifulsoup4
 requests
 PyPDF2
-pinecone
+pinecone[grpc]
 python-dotenv

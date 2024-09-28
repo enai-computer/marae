@@ -70,3 +70,11 @@ class DocumentTable:
             str(row[0]) + "-" + str(row[1])
             for row in rows
         ]
+    
+    def fetch_content(cursor: Cursor, document_id: str, section_number: int) -> str:
+        cursor.execute("""
+            SELECT content FROM document WHERE id = ? AND section_number = ?
+        """, (document_id, section_number))
+        row = cursor.fetchone()
+        return row[0] if row else ""
+    
