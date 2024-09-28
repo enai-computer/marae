@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from rest.v1 import ClientDocumentResource, AdminResource, SearchResource
+from app.rest.v1 import ClientDocumentResource, AdminResource, SearchResource
 from dotenv import load_dotenv
 
 load_dotenv()

@@ -1,7 +1,6 @@
 import sqlite3
 import os
-from data.tables.DocumentTable import DocumentTable
-import threading
+from app.data.tables.DocumentTable import DocumentTable
 
 class DatabaseWriter:
     def __init__(self, db_path='appData/USERID/marae_spaces.db'):

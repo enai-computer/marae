@@ -1,4 +1,4 @@
-from ..dal.DatabaseWriter import DatabaseWriter
+from app.data.dal.DatabaseWriter import DatabaseWriter
 from uuid import UUID
 import requests
 from typing import List

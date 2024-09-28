@@ -1,6 +1,6 @@
 import os
 from pinecone import Pinecone
-from data.dal.DatabaseWriter import DatabaseWriter
+from app.data.dal.DatabaseWriter import DatabaseWriter
 import time
 from uuid import UUID
 

@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, BackgroundTasks
 from uuid import UUID
 from typing import Annotated
-from data.Processors.Transform2VectorDB import Transform2VectorDB
+from app.data.Processors.Transform2VectorDB import Transform2VectorDB
 
 router = APIRouter(prefix="/v1", tags=["v1"])
 

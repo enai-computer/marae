@@ -1,6 +1,7 @@
 from pinecone.grpc import PineconeGRPC as Pinecone
 import os
-from data.dal.DatabaseWriter import DatabaseWriter
+from app.data.dal.DatabaseWriter import DatabaseWriter
+
 class SpacesSearchEngine:
 
     def __init__(self):
