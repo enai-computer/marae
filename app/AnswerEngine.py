@@ -1,6 +1,8 @@
 from uuid import UUID
+
 from .LLMInterface import LLMInterface
 from .SpacesSearchEngine import SpacesSearchEngine
+
 
 class AnswerEngine:
 
@@ -14,6 +16,5 @@ class AnswerEngine:
         # build and send request to LLM
         print("requesting answer for question: ", question, " with context: ", context)
         chat_response = self.llm_interface.send_chat(question, context)
-        print(chat_response.json())
-        return {"status": "ok"}
-    
+        print("f **** chat response  /n {chat_response}****")
+        return {"message": chat_response}
