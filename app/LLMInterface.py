@@ -1,6 +1,9 @@
-import requests
-from requests import Response
 import os
+
+import requests
+from mistralai import Mistral
+from requests import Response
+
 
 class LLMInterface:
 
@@ -10,49 +13,28 @@ class LLMInterface:
         self.mistral_client = requests.Session()
 
     def send_chat(self, question: str, context: str) -> Response:
-        response = self.mistral_client.post(
-            "https://api.mistral.ai/v1/chat/completions",
-            headers={"Authorization": f"Bearer {os.getenv('MISTRAL_API_KEY')}"},
-            json=self.build_chat_request_mistral(question, context)
-        )
+
+        response = self.build_chat_request_mistral(question, context)
         return response
 
     def build_chat_request_mistral(self, question: str, context: str) -> dict:
-        return {
-            "model": self.mistral_model,
-            "temperature": 0.7,
-            "top_p": 1,
-            "max_tokens": 0,
-            "min_tokens": 0,
-            "stream": False,
-            "stop": "string",
-            "random_seed": 0,
-            "messages": [
+
+        client = Mistral(api_key=os.getenv("MISTRAL_API_KEY"))
+
+        mistral_response = client.chat.complete(
+            model=self.mistral_model,
+            messages=[
                 {
                     "role": "system",
-                    "content": "You are a helpful assistant and have access to the following context: " + context
+                    "content": "You are a helpful assistant and have access to the following context: "
+                    + context,
                 },
-                {
-                    "role": "user",
-                    "content": question
-                }
+                {"role": "user", "content": question},
             ],
-            "response_format": {
-                "type": "text"
-            },
-            "tools": [
-                {
-                    "type": "function",
-                    "function": {
-                        "name": "string",
-                        "description": "",
-                        "parameters": {}
-                    }
-                }
-            ],
-            "tool_choice": "auto",
-            "safe_prompt": False
-        }
+        )
+        mistral_response_content = mistral_response.choices[0].message.content
+
+        return mistral_response_content
 
     def build_chat_request_gpt4o(self, question: str, context: str) -> dict:
         pass
