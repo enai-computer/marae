@@ -1,6 +1,4 @@
 fastapi
-beautifulsoup4
 requests
-PyPDF2
-pinecone[grpc]
 python-dotenv
+PyJWT
