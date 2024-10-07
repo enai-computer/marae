@@ -13,7 +13,6 @@ class LLMInterface:
         self.mistral_client = requests.Session()
 
     def send_chat(self, question: str, context: str) -> Response:
-
         response = self.build_chat_request_mistral(question, context)
         return response
 
@@ -26,8 +25,7 @@ class LLMInterface:
             messages=[
                 {
                     "role": "system",
-                    "content": "You are a helpful assistant and have access to the following context: "
-                    + context,
+                    "content": "You are a helpful assistant",
                 },
                 {"role": "user", "content": question},
             ],

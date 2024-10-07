@@ -47,3 +47,4 @@ class DatabaseWriter:
     
     def close(self):
         self.db_connection.close()
+    

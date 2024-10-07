@@ -5,4 +5,4 @@ PyPDF2
 pinecone[grpc]
 python-dotenv
 uvicorn
-mistralai
+PyJWT
