@@ -1,7 +1,9 @@
 from fastapi import APIRouter, Depends, Request
+from fastapi import APIRouter, Depends, Request
 from typing import Annotated
 from datetime import timedelta
 from uuid import UUID
+from urllib.parse import unquote
 from ...AnswerEngine import AnswerEngine
 
 ALGORITHM = "HS256"
@@ -21,7 +23,6 @@ router = APIRouter(prefix="/v1", tags=["v1"])
 #     return encoded_jwt
 
 @router.get("/{user_id}/answer")
-def answer(user_id: UUID, request: Request, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):
-    return answer_engine.get_answer(request.query_params.get('q'))
-
-
+def answer(user_id: UUID, q: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):
+    decoded_q = unquote(q)
+    return answer_engine.get_answer(decoded_q)
