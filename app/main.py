@@ -8,3 +8,7 @@ webServer = FastAPI()
 @webServer.get("/status")
 def status():
     return {"status": "ok"}
+
+@webServer.get("/health")
+async def health_check():
+    return {"status": "healthy"}
