@@ -9,6 +9,6 @@ webServer = FastAPI()
 def status():
     return {"status": "ok"}
 
-@webServer.get("/health")
+@webServer.get("/")
 def health_check():
     return {"status": "healthy"}
