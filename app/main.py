@@ -12,3 +12,7 @@ def status():
 @webServer.get("/")
 def health_check():
     return {"status": "healthy"}
+
+@webServer.get("/version")
+def version():
+    return {"version": "0.1"}
