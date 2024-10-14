@@ -27,6 +27,7 @@ jobs:
       - name: Automatic Tagging of Releases
         id: increment-git-tag
         run: |
+          ls -la
           chmod +x git_update.sh
           bash git_update.sh -v minor
 
