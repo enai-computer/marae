@@ -32,7 +32,7 @@ async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> boo
 # MARK: - API here:
 #
 @webServer.get("/status")
-def status(verified: Annotated[bool, Depends(get_current_user)]):
+def status():
     return {"status": "ok"}
 
 @webServer.get("/")
@@ -40,5 +40,9 @@ def health_check():
     return {"status": "healthy"}
 
 @webServer.get("/version")
-def version():
-    return {"version": "0.1"}
+def version(verified: Annotated[bool, Depends(get_current_user)]):
+    return {
+        "api-version": "v1",
+        "mac-version": "0.2.0",
+        "mac-build": "2024-10-14.1"
+    }
