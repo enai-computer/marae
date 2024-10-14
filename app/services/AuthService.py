@@ -1,5 +1,4 @@
 from devicecheck import DeviceCheck
-import os
 from datetime import datetime, timedelta, timezone
 import jwt
 from app.rest.models.AuthModels import Token

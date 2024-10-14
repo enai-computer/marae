@@ -7,7 +7,7 @@ import uuid
 router = APIRouter(prefix="/v1", tags=["v1"])
 
 @router.get("/verify")
-def create_access_token(apple_device_token: Annotated[str | None, Header()] = None, auth_service: AuthService = Depends(AuthService)):
+def create_access_token(apple_device_token: Annotated[str | None, Header()] = None, auth_service: AuthService = Depends(AuthService)) -> Token:
     result = auth_service.validate_device_token(apple_device_token)
 
     if result.is_ok:
