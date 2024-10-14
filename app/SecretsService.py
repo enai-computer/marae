@@ -32,24 +32,25 @@ class SecretsService:
         secret_name = "prod/marae"
         region_name = "eu-west-1"
 
-        # Create a Secrets Manager client
-        session = boto3.session.Session()
-        client = session.client(
-            service_name='secretsmanager',
-            region_name=region_name
-        )
+        self.fetch_secrets_from_env()
+        # # Create a Secrets Manager client
+        # session = boto3.session.Session()
+        # client = session.client(
+        #     service_name='secretsmanager',
+        #     region_name=region_name
+        # )
 
-        try:
-            get_secret_value_response = client.get_secret_value(
-                SecretId=secret_name
-            )
-        except ClientError as e:
-            # For a list of exceptions thrown, see
-            # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-            raise e
+        # try:
+        #     get_secret_value_response = client.get_secret_value(
+        #         SecretId=secret_name
+        #     )
+        # except ClientError as e:
+        #     # For a list of exceptions thrown, see
+        #     # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        #     raise e
 
-        for secret in get_secret_value_response:
-            self.secrets[secret] = get_secret_value_response[secret]
+        # for secret in get_secret_value_response:
+        #     self.secrets[secret] = get_secret_value_response[secret]
         
         self.secrets["PRIVATE_KEY_PATH"] = "env-data/prod-marae-dc.p8"
 
