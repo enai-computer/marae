@@ -31,7 +31,7 @@ jobs:
         id: increment-git-tag
         run: |
           chmod +x .github/workflows/git_update.sh
-          bash .github/workflows/git_update.sh -v minor
+          bash .github/workflows/git_update.sh -v patch
 
       - name: Build, tag, push Docker image
         env:

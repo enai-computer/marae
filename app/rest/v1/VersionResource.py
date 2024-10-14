@@ -1,6 +1,5 @@
 from fastapi import Depends, APIRouter
 from app.services.CheckTokenService import get_current_user
-from typing import Annotated
 
 router = APIRouter(
     prefix="/v1",
