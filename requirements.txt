@@ -4,3 +4,4 @@ python-dotenv
 devicecheck
 pyjwt
 boto3
+openai
