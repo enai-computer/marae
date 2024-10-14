@@ -27,8 +27,8 @@ jobs:
       - name: Automatic Tagging of Releases
         id: increment-git-tag
         run: |
-          chmod +x ./build/git_update.sh
-          bash ./build/git_update.sh -v minor
+          chmod +x git_update.sh
+          bash git_update.sh -v minor
 
       - name: Build, tag, push Docker image
         env:
