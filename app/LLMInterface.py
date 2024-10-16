@@ -30,7 +30,7 @@ class LLMInterface:
     
     def get_welcome_text(self, space_name: str) -> str:
         response = self.openai_client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful library assistant."},
                 {"role": "user", "content": f"""
@@ -54,7 +54,7 @@ class LLMInterface:
                 - Chat with Enai (as an AI tool) about one or more specific tabs
 
                 Once you are finished working on a particular topic, you can create or reopen another space and Enai saves all your work. So you can work on your first intent, put it away, and come back later. If you’re using your computer to do something complicated for more than a few days, Enai can help you keep all that information organized and easily accessible.
-                Generate a welcome text for a new space called {space_name}"""}
+                Generate a welcome text for a new space called {space_name} with a maximum of 100 words."""}
             ],
             stream=False
         )
