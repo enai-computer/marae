@@ -15,3 +15,8 @@ router = APIRouter(
 def answer(user_id: UUID, q: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):
     decoded_q = unquote(q)
     return answer_engine.get_answer(decoded_q)
+
+@router.get("/{user_id}/welcome-text")
+def welcome_text(user_id: UUID, sname: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):
+    decoded_space_name = unquote(sname)
+    return answer_engine.get_welcome_text(decoded_space_name)

@@ -5,3 +5,4 @@ devicecheck
 pyjwt
 boto3
 openai
+markdown
