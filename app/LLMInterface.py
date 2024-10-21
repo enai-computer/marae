@@ -10,9 +10,6 @@ class Message(BaseModel):
     role: str
     content: str
 
-class MessageList(BaseModel):
-    messages: List[Message]
-
 class LLMInterface:
 
     perplexity_url = "https://api.perplexity.ai/chat/completions"
@@ -40,7 +37,7 @@ class LLMInterface:
     async def stream_openai_chat(
         self,
         question: str,
-        messages: MessageList
+        messages: List[Message]
     ):
         messages = [
                 {"role": "system", "content": "You are a helpful library assistant."},
