@@ -2,7 +2,16 @@ import requests
 from requests import Response
 from openai import OpenAI
 import os
+from asyncio import sleep
+from pydantic import BaseModel
+from typing import List
 
+class Message(BaseModel):
+    role: str
+    content: str
+
+class MessageList(BaseModel):
+    messages: List[Message]
 
 class LLMInterface:
 
@@ -28,6 +37,26 @@ class LLMInterface:
         )
         return response.choices[0].message.content
     
+    async def stream_openai_chat(
+        self,
+        question: str,
+        messages: MessageList
+    ):
+        messages = [
+                {"role": "system", "content": "You are a helpful library assistant."},
+        ] + messages + [{"role": "user", "content": question}]
+
+        response = self.openai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages,
+            stream=True
+        )
+        for chunk in response:
+            if chunk.choices[0].delta.content is not None:
+                print(chunk)
+                yield chunk.choices[0].delta.content
+                await sleep(0.1)
+
     def get_welcome_text(self, space_name: str) -> str:
         response = self.openai_client.chat.completions.create(
             model="gpt-4o-mini",
