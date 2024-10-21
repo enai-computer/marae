@@ -1,5 +1,4 @@
-from .LLMInterface import LLMInterface
-from .LLMInterface import MessageList
+from .LLMInterface import LLMInterface, MessageList
 import markdown
 from fastapi.responses import StreamingResponse
 
