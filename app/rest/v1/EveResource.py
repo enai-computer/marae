@@ -2,13 +2,9 @@ from fastapi import APIRouter, Depends
 from typing import Annotated
 from uuid import UUID
 from urllib.parse import unquote
-from app.AnswerEngine import AnswerEngine, Message
+from app.rest.models.AnswerPayload import AnswerPayload
+from app.AnswerEngine import AnswerEngine
 from app.services.CheckTokenService import get_current_user
-from pydantic import BaseModel
-from typing import List
-
-class ContextPayload(BaseModel):
-    messages: List[Message]
 
 router = APIRouter(
     prefix="/v1", 
@@ -16,20 +12,17 @@ router = APIRouter(
     dependencies=[Depends(get_current_user)]
     )
 
-@router.get("/{user_id}/answer")
-def answer(user_id: UUID, q: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):
-    decoded_q = unquote(q)
-    return answer_engine.get_answer(decoded_q)
-
-@router.post("/{user_id}/answer-stream")
-async def answer_stream(
+@router.post("/{user_id}/answer")
+async def answer(
     user_id: UUID,
-    q: str,
     answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)],
-    payload: ContextPayload,
+    payload: AnswerPayload,
 ):
-    decoded_q = unquote(q)
-    return answer_engine.get_answer_stream(decoded_q, messages=payload.messages)
+    return answer_engine.get_answer(
+        question=payload.question,
+        messages=payload.messages,
+        is_streaming=payload.is_streaming
+    )
 
 @router.get("/{user_id}/welcome-text")
 def welcome_text(user_id: UUID, sname: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):
