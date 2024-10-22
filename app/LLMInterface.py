@@ -3,12 +3,8 @@ from requests import Response
 from openai import OpenAI
 import os
 from asyncio import sleep
-from pydantic import BaseModel
 from typing import List
-
-class Message(BaseModel):
-    role: str
-    content: str
+from app.rest.models.AnswerPayload import AIChatMessage
 
 class LLMInterface:
 
@@ -23,29 +19,26 @@ class LLMInterface:
         )
         self.perplexity_client = requests.Session()
 
-    def send_chat_to_openai(self, question: str) -> str:
+    def send_chat_to_openai(self, question: str, messages: List[AIChatMessage]) -> str:
         response = self.openai_client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": "You are a helpful library assistant."},
-                {"role": "user", "content": question}
-            ],
+            ] + messages + [{"role": "user", "content": question}],
             stream=False
         )
         return response.choices[0].message.content
     
-    async def stream_openai_chat(
+    async def send_chat_to_openai_stream(
         self,
         question: str,
-        messages: List[Message]
+        messages: List[AIChatMessage],
     ):
-        messages = [
-                {"role": "system", "content": "You are a helpful library assistant."},
-        ] + messages + [{"role": "user", "content": question}]
-
         response = self.openai_client.chat.completions.create(
             model="gpt-4o",
-            messages=messages,
+            messages=[
+                {"role": "system", "content": "You are a helpful library assistant."},
+            ] + messages + [{"role": "user", "content": question}],
             stream=True
         )
         for chunk in response:
