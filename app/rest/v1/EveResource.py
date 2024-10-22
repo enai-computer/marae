@@ -12,6 +12,11 @@ router = APIRouter(
     dependencies=[Depends(get_current_user)]
     )
 
+@router.get("/{user_id}/answer")
+def answer(user_id: UUID, q: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):
+    decoded_q = unquote(q)
+    return answer_engine.get_answer(question=decoded_q, messages=[], is_streaming=False)
+
 @router.post("/{user_id}/answer")
 async def answer(
     user_id: UUID,
