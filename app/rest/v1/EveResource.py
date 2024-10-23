@@ -5,6 +5,7 @@ from urllib.parse import unquote
 from app.rest.models.AnswerPayload import AnswerPayload
 from app.AnswerEngine import AnswerEngine
 from app.services.CheckTokenService import get_current_user
+import posthog
 
 router = APIRouter(
     prefix="/v1", 
@@ -23,6 +24,7 @@ async def answer(
     answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)],
     payload: AnswerPayload,
 ):
+    posthog.capture(user_id, event_name="asked_en-ai", properties={"ui-component": "new-tab"})
     return answer_engine.get_answer(
         question=payload.question,
         messages=payload.messages,
