@@ -10,7 +10,6 @@ class AnswerEngine:
         self.llm_interface = LLMInterface()
     
     def get_answer(self, question: str, messages: List[AIChatMessage], is_streaming: bool):
-        print("requesting answer for question: ", question)
         if (is_streaming):
             return StreamingResponse(self.llm_interface.send_chat_to_openai_stream(question, messages), media_type="text/event-stream")
         else:
