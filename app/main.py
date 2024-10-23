@@ -1,8 +1,14 @@
 from fastapi import FastAPI
-from fastapi.security import OAuth2PasswordBearer
+from fastapi.middleware.cors import CORSMiddleware
 from .rest.v1 import AuthResource, VersionResource, EveResource
 
 webServer = FastAPI()
+webServer.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 webServer.include_router(AuthResource.router)
 webServer.include_router(VersionResource.router)
 webServer.include_router(EveResource.router)
