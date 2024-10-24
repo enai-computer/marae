@@ -5,7 +5,7 @@ from asyncio import sleep
 from typing import List
 from app.rest.models.EveModels import AIChatMessage
 from app.SecretsService import secretsStore
-from app.provider.openAiPrompts import get_welcome_text_user_prompt
+from app.provider.openAiPrompts import get_usr_prompt_space_name, get_usr_prompt_space_name_group_name, get_usr_prompt_space_name_context_tabs, get_usr_prompt_space_name_group_name_context_tabs
 class LLMInterface:
 
     perplexity_url = "https://api.perplexity.ai/chat/completions"
@@ -47,12 +47,14 @@ class LLMInterface:
                 await sleep(0.1)
 
     def get_welcome_text(self, space_name: str, group_name: str | None = None, context_tabs: List[str] | None = None) -> str:
-        if group_name is None and context_tabs is None:
-            prompt = get_welcome_text_user_prompt(space_name)
-        elif group_name is not None:
-            prompt = get_welcome_text_user_prompt(space_name, group_name)
-        elif context_tabs is not None:
-            prompt = get_welcome_text_user_prompt(space_name, context_tabs)
+        if group_name is None and context_tabs:
+            prompt = get_usr_prompt_space_name(space_name=space_name)
+        elif group_name is not None and not context_tabs:
+            prompt = get_usr_prompt_space_name_group_name(space_name=space_name, group_name=group_name)
+        elif context_tabs is not None and group_name is None:
+            prompt = get_usr_prompt_space_name_context_tabs(space_name=space_name, context_tabs=context_tabs)
+        elif group_name is not None and context_tabs is not None:
+            prompt = get_usr_prompt_space_name_group_name_context_tabs(space_name=space_name, group_name=group_name, context_tabs=context_tabs)
 
         response = self.openai_client.chat.completions.create(
             model="gpt-4o-mini",
