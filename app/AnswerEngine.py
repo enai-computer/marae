@@ -1,8 +1,8 @@
-from .LLMInterface import LLMInterface
+from .provider.LLMInterface import LLMInterface
 import markdown
 from fastapi.responses import StreamingResponse
 from typing import List
-from app.rest.models.AnswerPayload import AIChatMessage
+from app.rest.models.EveModels import AIChatMessage
 
 class AnswerEngine:
 
@@ -15,6 +15,6 @@ class AnswerEngine:
         else:
             return {"message": self.llm_interface.send_chat_to_openai(question, messages)}
 
-    def get_welcome_text(self, space_name: str):
-        welcome_text = self.llm_interface.get_welcome_text(space_name)
+    def get_welcome_text(self, space_name: str, group_name: str, context_tabs: List[str]):
+        welcome_text = self.llm_interface.get_welcome_text(space_name, group_name, context_tabs)
         return {"message": markdown.markdown(welcome_text)}
