@@ -27,7 +27,7 @@ def get_usr_prompt_space_name(space_name: str) -> str:
 
 def get_usr_prompt_space_name_group_name(space_name: str, group_name: str) -> str:
     return f"""
-        Give me one insightful sentence about "{space_name}" and "{group_name}" assuming i'm very intelligent and using simple language.
+        Write an insightful sentence about "{space_name}" and "{group_name}". In your answer, please assume that I'm very intelligent and well informed, and use simple language.
     """
 
 def get_usr_prompt_space_name_group_name_context_tabs(space_name: str, group_name: str, context_tabs: List[str]) -> str:
