@@ -1,16 +1,14 @@
-import requests
 from requests import Response
 from openai import OpenAI
 import os
 from asyncio import sleep
 from typing import List
-from app.rest.models.AnswerPayload import AIChatMessage
+from app.rest.models.EveModels import AIChatMessage
 from app.SecretsService import secretsStore
-
+from app.provider.openAiPrompts import get_welcome_text_user_prompt
 class LLMInterface:
 
     perplexity_url = "https://api.perplexity.ai/chat/completions"
-
 
     def __init__(self):
         self.openai_client = OpenAI(
@@ -42,38 +40,25 @@ class LLMInterface:
             ] + messages + [{"role": "user", "content": question}],
             stream=True
         )
+
         for chunk in response:
             if chunk.choices[0].delta.content is not None:
                 yield chunk.choices[0].delta.content
                 await sleep(0.1)
 
-    def get_welcome_text(self, space_name: str) -> str:
+    def get_welcome_text(self, space_name: str, group_name: str | None = None, context_tabs: List[str] | None = None) -> str:
+        if group_name is None and context_tabs is None:
+            prompt = get_welcome_text_user_prompt(space_name)
+        elif group_name is not None:
+            prompt = get_welcome_text_user_prompt(space_name, group_name)
+        elif context_tabs is not None:
+            prompt = get_welcome_text_user_prompt(space_name, context_tabs)
+
         response = self.openai_client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
                 {"role": "system", "content": "You are a helpful library assistant."},
-                {"role": "user", "content": f"""
-                 Enai is an interpersonal computer
-                optimized for AI and the net.
-                (It is a browser OS, emphasis on OS)
-
-                By organizing your whole computer
-                around your intent, Enai helps you be
-                calmer, smarter, and more effective.
-
-                How to use Enai:
-                First you set your intent, which creates a space for you to practice that intent.
-
-                In the space, you can
-
-                - Surf the web
-                - Right click to pin websites to the menu bar to access them like apps
-                - Create and name groups so that you can be organized
-                - Write notes or paste text on the canvas
-                - Chat with Enai (as an AI tool) about one or more specific tabs
-
-                Once you are finished working on a particular topic, you can create or reopen another space and Enai saves all your work. So you can work on your first intent, put it away, and come back later. If you’re using your computer to do something complicated for more than a few days, Enai can help you keep all that information organized and easily accessible.
-                Generate a welcome text for a new space called {space_name} with a maximum of 100 words."""}
+                {"role": "user", "content": prompt}
             ],
             stream=False
         )

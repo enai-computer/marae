@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from typing import Annotated
 from uuid import UUID
 from urllib.parse import unquote
-from app.rest.models.AnswerPayload import AnswerPayload
+from app.rest.models.EveModels import AnswerPayload, WelcomeTextPayload
 from app.AnswerEngine import AnswerEngine
 from app.services.CheckTokenService import get_current_user
 from posthog import Posthog
@@ -38,3 +38,10 @@ async def answer(
 def welcome_text(user_id: UUID, sname: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):
     decoded_space_name = unquote(sname)
     return answer_engine.get_welcome_text(decoded_space_name)
+
+@router.post("/{user_id}/welcome-text")
+def welcome_text(user_id: UUID, 
+                 answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)],
+                 payload: WelcomeTextPayload
+                 ):
+    return answer_engine.get_welcome_text(payload.space_name, payload.group_name, payload.context_tabs)
