@@ -1,6 +1,6 @@
 from typing import List
 
-def get_welcome_text_user_prompt(space_name: str) -> str:
+def get_usr_prompt_space_name(space_name: str) -> str:
     return f"""
         Enai is an interpersonal computer
         optimized for AI and the net.
@@ -25,12 +25,17 @@ def get_welcome_text_user_prompt(space_name: str) -> str:
         Generate a welcome text for a new space called {space_name} with a maximum of 100 words.
     """
 
-def get_welcome_text_user_prompt(space_name: str, group_name: str) -> str:
+def get_usr_prompt_space_name_group_name(space_name: str, group_name: str) -> str:
     return f"""
-        TODO
+        Give me one insightful sentence about "{space_name}" and "{group_name}" assuming i'm very intelligent and using simple language.
     """
 
-def get_welcome_text_user_prompt(space_name: str, context_tabs: List[str]) -> str:
+def get_usr_prompt_space_name_group_name_context_tabs(space_name: str, group_name: str, context_tabs: List[str]) -> str:
     return f"""
-        TODO
+        Give me one insightful sentence about "{space_name}" and "{group_name}" and the following tabs: {context_tabs} assuming i'm very intelligent and using simple language.
+    """
+
+def get_usr_prompt_space_name_context_tabs(space_name: str, context_tabs: List[str]) -> str:
+    return f"""
+        Give me one insightful sentence about "{space_name}" and the following tabs: {context_tabs} assuming i'm very intelligent and using simple language.
     """
