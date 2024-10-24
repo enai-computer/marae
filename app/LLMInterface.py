@@ -5,6 +5,7 @@ import os
 from asyncio import sleep
 from typing import List
 from app.rest.models.AnswerPayload import AIChatMessage
+from app.SecretsService import secretsStore
 
 class LLMInterface:
 
@@ -13,11 +14,11 @@ class LLMInterface:
 
     def __init__(self):
         self.openai_client = OpenAI(
-            api_key=os.getenv("OPENAI_API_KEY"),
-            organization=os.getenv("OPENAI_ORG_ID"),
-            project=os.getenv("OPENAI_PROJECT_ID")
+            api_key=secretsStore.secrets["OPENAI_API_KEY"],
+            organization=secretsStore.secrets["OPENAI_ORG_ID"],
+            project=secretsStore.secrets["OPENAI_PROJECT_ID"]
         )
-        self.perplexity_client = requests.Session()
+        # self.perplexity_client = requests.Session()
 
     def send_chat_to_openai(self, question: str, messages: List[AIChatMessage]) -> str:
         response = self.openai_client.chat.completions.create(
@@ -84,8 +85,9 @@ class LLMInterface:
             "Authorization": f"Bearer {os.getenv('PERPLEXITY_API_KEY')}",
             "Content-Type": "application/json"
         }
-        response = self.perplexity_client.post(self.perplexity_url, json=payload, headers=headers)
-        return self.handle_perplexity_response(response)
+        # response = self.perplexity_client.post(self.perplexity_url, json=payload, headers=headers)
+        # return self.handle_perplexity_response(response)
+        return "Not implemented"
     
     def handle_perplexity_response(self, response: Response) -> str:
         if response.status_code != 200:
