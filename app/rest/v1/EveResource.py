@@ -37,11 +37,11 @@ async def answer(
 @router.get("/{user_id}/welcome-text")
 def welcome_text(user_id: UUID, sname: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):
     decoded_space_name = unquote(sname)
-    return answer_engine.get_welcome_text(decoded_space_name)
+    return answer_engine.get_info_text(decoded_space_name)
 
 @router.post("/{user_id}/welcome-text")
 def welcome_text(user_id: UUID, 
                  answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)],
                  payload: WelcomeTextPayload
                  ):
-    return answer_engine.get_welcome_text(payload.space_name, payload.group_name, payload.context_tabs)
+    return answer_engine.get_info_text(payload.space_name, payload.group_name, payload.context_tabs)
