@@ -59,7 +59,7 @@ class LLMInterface:
         response = self.openai_client.chat.completions.create(
             model="gpt-4o-mini",
             messages=[
-                {"role": "system", "content": "You are a helpful library assistant."},
+                {"role": "system", "content": "You are a helpful assistant for a browser."},
                 {"role": "user", "content": prompt}
             ],
             stream=False
