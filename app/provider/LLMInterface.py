@@ -81,7 +81,7 @@ class LLMInterface:
                 {"role": "user", "content": prompt}
             ],
             stream=False,
-            temperature=1.3,
+            temperature=1.4,
             max_tokens=512
         )
         return response.choices[0].message.content
