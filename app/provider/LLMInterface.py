@@ -61,7 +61,6 @@ class LLMInterface:
         return response.choices[0].message.content
     
     def get_info_text(self, space_name: str, group_name: str | None = None, context_tabs: List[str] | None = None) -> str:
-        print(f"group_name: {group_name}, context_tabs: {context_tabs}")
         if group_name is None and not context_tabs:
             print("used prompt 1")
             prompt = get_usr_prompt_space_name(space_name=space_name)

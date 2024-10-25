@@ -1,6 +1,7 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Header
 from typing import Annotated
 from uuid import UUID
+import markdown
 from urllib.parse import unquote
 from app.rest.models.EveModels import AnswerPayload, WelcomeTextPayload
 from app.AnswerEngine import AnswerEngine
@@ -35,9 +36,13 @@ async def answer(
     )
 
 @router.get("/{user_id}/welcome-text")
-def welcome_text(user_id: UUID, sname: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):
+def welcome_text(user_id: UUID, sname: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)], accept: Annotated[str | None, Header()] = None):
     decoded_space_name = unquote(sname)
-    return answer_engine.get_info_text(decoded_space_name)
+    if accept == "text/markdown":
+        return {"message": answer_engine.get_welcome_text(decoded_space_name)}
+    else:
+        welcome_text = answer_engine.get_welcome_text(decoded_space_name)
+        return {"message": markdown.markdown(welcome_text)}
 
 @router.post("/{user_id}/welcome-text")
 def welcome_text(user_id: UUID, 
