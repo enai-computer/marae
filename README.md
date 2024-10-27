@@ -7,5 +7,6 @@ Provides EnAI.
 ---
 
 **Current models:**
+
 - OpenAI: gpt-4o <- new tab
 - Cerebras: llama3.1-70b <- palette chat
