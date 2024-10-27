@@ -24,7 +24,8 @@ class SecretsService:
             "BUNDLE_ID": os.getenv("BUNDLE_ID"),
             "KEY_ID": os.getenv("KEY_ID"),
             "PRIVATE_KEY_PATH": os.getenv("PRIVATE_KEY_PATH"),
-            "POSTHOG_API_KEY": os.getenv("POSTHOG_API_KEY")
+            "POSTHOG_API_KEY": os.getenv("POSTHOG_API_KEY"),
+            "CEREBRAS_API_KEY": os.getenv("CEREBRAS_API_KEY")
         }
 
     def fetch_secrets_from_aws(self):

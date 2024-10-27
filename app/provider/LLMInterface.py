@@ -6,6 +6,9 @@ from typing import List
 from app.rest.models.EveModels import AIChatMessage
 from app.SecretsService import secretsStore
 from app.provider.openAiPrompts import get_usr_prompt_welcome_text, get_usr_prompt_space_name, get_usr_prompt_space_name_group_name, get_usr_prompt_space_name_context_tabs, get_usr_prompt_space_name_group_name_context_tabs
+from app.provider.llamaPrompts import system_prompt_llama_70b
+from cerebras.cloud.sdk import Cerebras
+
 class LLMInterface:
 
     perplexity_url = "https://api.perplexity.ai/chat/completions"
@@ -17,6 +20,20 @@ class LLMInterface:
             project=secretsStore.secrets["OPENAI_PROJECT_ID"]
         )
         # self.perplexity_client = requests.Session()
+        self.cerebras_client = Cerebras(
+            api_key=secretsStore.secrets["CEREBRAS_API_KEY"]
+        )
+
+    def send_chat_to_cerebras(self, question: str, messages: List[AIChatMessage]) -> str:
+        completion = self.cerebras_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_prompt_llama_70b()},
+                {"role": "user", "content": question}
+            ],
+            model="llama3.1-70b",
+            stream=False
+        )
+        return completion.choices[0].message.content
 
     def send_chat_to_openai(self, question: str, messages: List[AIChatMessage]) -> str:
         response = self.openai_client.chat.completions.create(

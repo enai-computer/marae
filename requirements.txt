@@ -7,3 +7,4 @@ boto3
 openai
 markdown
 posthog
+cerebras_cloud_sdk

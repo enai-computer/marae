@@ -12,7 +12,7 @@ class AnswerEngine:
         if (is_streaming):
             return StreamingResponse(self.llm_interface.send_chat_to_openai_stream(question, messages), media_type="text/event-stream")
         else:
-            return {"message": self.llm_interface.send_chat_to_openai(question, messages)}
+            return {"message": self.llm_interface.send_chat_to_cerebras(question, messages)}
 
     def get_welcome_text(self, space_name: str) -> str:
         return self.llm_interface.get_welcome_text(space_name)
