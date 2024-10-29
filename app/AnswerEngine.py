@@ -20,3 +20,9 @@ class AnswerEngine:
     def get_info_text(self, space_name: str, group_name: str | None, context_tabs: List[str]):
         info_text = self.llm_interface.get_info_text(space_name, group_name, context_tabs)
         return {"message": info_text}
+
+    def generate_title(self, question: str) -> str:
+        title = self.llm_interface.generate_title(question)
+        cleaned_title = title.strip('"')
+        words = cleaned_title.split()
+        return ' '.join(words[:5])

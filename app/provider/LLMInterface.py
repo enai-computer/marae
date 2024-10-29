@@ -6,7 +6,7 @@ from typing import List
 from app.rest.models.EveModels import AIChatMessage
 from app.SecretsService import secretsStore
 from app.provider.openAiPrompts import get_usr_prompt_welcome_text, get_usr_prompt_space_name, get_usr_prompt_space_name_group_name, get_usr_prompt_space_name_context_tabs, get_usr_prompt_space_name_group_name_context_tabs
-from app.provider.llamaPrompts import system_prompt_llama_70b
+from app.provider.llamaPrompts import system_prompt_llama_70b, system_prompt_llama_8b_title
 from cerebras.cloud.sdk import Cerebras
 
 class LLMInterface:
@@ -31,6 +31,17 @@ class LLMInterface:
                 {"role": "user", "content": question}
             ],
             model="llama3.1-70b",
+            stream=False
+        )
+        return completion.choices[0].message.content
+
+    def generate_title(self, question: str) -> str:
+        completion = self.cerebras_client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_prompt_llama_8b_title()},
+                {"role": "user", "content": f"Please give me a title for: \"{question}\" with a maximum of 3 words."}
+            ],
+            model="llama3.1-8b",
             stream=False
         )
         return completion.choices[0].message.content

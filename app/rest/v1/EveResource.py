@@ -50,3 +50,8 @@ def welcome_text(user_id: UUID,
                  payload: WelcomeTextPayload
                  ):
     return answer_engine.get_info_text(payload.space_name, payload.group_name, payload.context_tabs)
+
+@router.get("/{user_id}/title")
+def generate_title(user_id: UUID,  prompt: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):
+    title = answer_engine.generate_title(prompt)
+    return title
