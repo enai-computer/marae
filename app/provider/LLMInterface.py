@@ -5,7 +5,7 @@ from asyncio import sleep
 from typing import List
 from app.rest.models.EveModels import AIChatMessage
 from app.SecretsService import secretsStore
-from app.provider.openAiPrompts import get_usr_prompt_welcome_text, get_usr_prompt_space_name, get_usr_prompt_space_name_group_name, get_usr_prompt_space_name_context_tabs, get_usr_prompt_space_name_group_name_context_tabs
+from app.provider.openAiPrompts import get_system_prompt, get_usr_prompt_welcome_text, get_usr_prompt_space_name, get_usr_prompt_space_name_group_name, get_usr_prompt_space_name_context_tabs, get_usr_prompt_space_name_group_name_context_tabs
 from app.provider.llamaPrompts import system_prompt_llama_70b, system_prompt_llama_8b_title
 from cerebras.cloud.sdk import Cerebras
 
@@ -64,7 +64,7 @@ class LLMInterface:
         response = self.openai_client.chat.completions.create(
             model="gpt-4o",
             messages=[
-                {"role": "system", "content": "You are a helpful library assistant."},
+                {"role": "system", "content": get_system_prompt()},
             ] + messages + [{"role": "user", "content": question}],
             stream=True
         )
