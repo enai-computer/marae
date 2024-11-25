@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, Header
-from typing import Annotated
+from typing import Annotated, List
 from uuid import UUID
 import markdown
 from urllib.parse import unquote
-from app.rest.models.EveModels import AnswerPayload, WelcomeTextPayload
+from app.rest.models.EveModels import AnswerPayload, WelcomeTextPayload, AIModel
 from app.AnswerEngine import AnswerEngine
+from app.provider.LLMInterface import LLMInterface
 from app.services.CheckTokenService import get_current_user
 from posthog import Posthog
 from app.SecretsService import secretsStore
@@ -17,6 +18,10 @@ router = APIRouter(
 
 posthog = Posthog(secretsStore.secrets["POSTHOG_API_KEY"], host='https://eu.i.posthog.com')
 
+@router.get("/{user_id}/ai-models")
+def get_ai_models(user_id: UUID):
+    return {"models": LLMInterface.available_models}
+
 @router.get("/{user_id}/answer")
 def answer(user_id: UUID, q: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):
     decoded_q = unquote(q)
@@ -28,11 +33,12 @@ async def answer(
     answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)],
     payload: AnswerPayload,
 ):
-    posthog.capture(user_id, event="asked_en-ai", properties={"ui-component": "new-tab"})
+    posthog.capture(user_id, event="asked_en-ai", properties={"ui-component": "new-tab", "model_id": payload.model_id})
     return answer_engine.get_answer(
         question=payload.question,
         messages=payload.messages,
-        is_streaming=payload.is_streaming
+        is_streaming=payload.is_streaming,
+        model_id=payload.model_id
     )
 
 @router.get("/{user_id}/welcome-text")

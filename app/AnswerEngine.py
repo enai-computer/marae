@@ -8,9 +8,12 @@ class AnswerEngine:
     def __init__(self):
         self.llm_interface = LLMInterface()
     
-    def get_answer(self, question: str, messages: List[AIChatMessage], is_streaming: bool):
+    def get_answer(self, question: str, messages: List[AIChatMessage], is_streaming: bool, model_id: str | None = None):
         if (is_streaming):
-            return StreamingResponse(self.llm_interface.send_chat_to_openai_stream(question, messages), media_type="text/event-stream")
+            if model_id == "o1-preview":
+                return StreamingResponse(self.llm_interface.send_chat_to_openai_o1_stream(question, messages), media_type="text/event-stream")
+            else:
+                return StreamingResponse(self.llm_interface.send_chat_to_openai_gpt4_stream(question, messages), media_type="text/event-stream")
         else:
             return {"message": self.llm_interface.send_chat_to_cerebras(question, messages)}
 

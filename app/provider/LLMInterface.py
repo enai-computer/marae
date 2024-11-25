@@ -3,7 +3,7 @@ from openai import OpenAI
 import os
 from asyncio import sleep
 from typing import List
-from app.rest.models.EveModels import AIChatMessage
+from app.rest.models.EveModels import AIChatMessage, AIModel
 from app.SecretsService import secretsStore
 from app.provider.openAiPrompts import get_system_prompt, get_usr_prompt_welcome_text, get_usr_prompt_space_name, get_usr_prompt_space_name_group_name, get_usr_prompt_space_name_context_tabs, get_usr_prompt_space_name_group_name_context_tabs
 from app.provider.llamaPrompts import system_prompt_llama_70b, system_prompt_llama_8b_title
@@ -12,6 +12,11 @@ from cerebras.cloud.sdk import Cerebras
 class LLMInterface:
 
     perplexity_url = "https://api.perplexity.ai/chat/completions"
+
+    available_models: List[AIModel] = [
+        AIModel(id="gpt-4o", name="OpenAI GPT-4o", description="The latest model from OpenAI."),
+        AIModel(id="o1-preview", name="OpenAI o1", description="OpenAI's reasoning model designed to solve hard problems across domains."),
+    ]
 
     def __init__(self):
         self.openai_client = OpenAI(
@@ -56,16 +61,32 @@ class LLMInterface:
         )
         return response.choices[0].message.content
     
-    async def send_chat_to_openai_stream(
+    async def send_chat_to_openai_gpt4_stream(
         self,
         question: str,
-        messages: List[AIChatMessage],
+        messages: List[AIChatMessage]
     ):
         response = self.openai_client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": get_system_prompt()},
             ] + messages + [{"role": "user", "content": question}],
+            stream=True
+        )
+
+        for chunk in response:
+            if chunk.choices[0].delta.content is not None:
+                yield chunk.choices[0].delta.content
+                await sleep(0.1)
+    
+    async def send_chat_to_openai_o1_stream(
+        self,
+        question: str,
+        messages: List[AIChatMessage]
+    ):
+        response = self.openai_client.chat.completions.create(
+            model="o1-preview",
+            messages=[{"role": msg.role, "content": msg.content} for msg in messages] + [{"role": "user", "content": question}],
             stream=True
         )
 
