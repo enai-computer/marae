@@ -13,7 +13,7 @@ from app.SecretsService import secretsStore
 router = APIRouter(
     prefix="/v1", 
     tags=["v1"],
-    dependencies=[Depends(get_current_user)]
+    # dependencies=[Depends(get_current_user)]
     )
 
 posthog = Posthog(secretsStore.secrets["POSTHOG_API_KEY"], host='https://eu.i.posthog.com')
@@ -56,6 +56,13 @@ def welcome_text(user_id: UUID,
                  payload: WelcomeTextPayload
                  ):
     return answer_engine.get_info_text(payload.space_name, payload.group_name, payload.context_tabs)
+
+@router.post("/{user_id}/welcome-text-stream") 
+async def welcome_text_stream(user_id: UUID, 
+                              answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)],
+                              payload: WelcomeTextPayload
+                              ):
+    return answer_engine.get_info_text_stream(payload.space_name, payload.group_name, payload.context_tabs)
 
 @router.get("/{user_id}/title")
 def generate_title(user_id: UUID,  prompt: str, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)]):

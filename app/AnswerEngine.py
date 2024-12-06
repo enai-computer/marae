@@ -19,10 +19,13 @@ class AnswerEngine:
 
     def get_welcome_text(self, space_name: str) -> str:
         return self.llm_interface.get_welcome_text(space_name)
-    
+        
     def get_info_text(self, space_name: str, group_name: str | None, context_tabs: List[str]):
         info_text = self.llm_interface.get_info_text(space_name, group_name, context_tabs)
         return {"message": info_text}
+    
+    def get_info_text_stream(self, space_name: str, group_name: str | None, context_tabs: List[str]):
+        return StreamingResponse(self.llm_interface.get_info_text_stream(space_name, group_name, context_tabs), media_type="text/event-stream")
 
     def generate_title(self, question: str) -> str:
         title = self.llm_interface.generate_title(question)

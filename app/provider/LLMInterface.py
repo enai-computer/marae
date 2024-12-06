@@ -108,7 +108,7 @@ class LLMInterface:
             max_tokens=512
         )
         return response.choices[0].message.content
-    
+
     def get_info_text(self, space_name: str, group_name: str | None = None, context_tabs: List[str] | None = None) -> str:
         if group_name is None and not context_tabs:
             print("used prompt 1")
@@ -134,6 +134,36 @@ class LLMInterface:
             max_tokens=512
         )
         return response.choices[0].message.content
+    
+
+    async def get_info_text_stream(self, space_name: str, group_name: str | None = None, context_tabs: List[str] | None = None):
+        if group_name is None and not context_tabs:
+            print("used prompt 1")
+            prompt = get_usr_prompt_space_name(space_name=space_name)
+        elif group_name and not context_tabs:
+            print("used prompt 2")
+            prompt = get_usr_prompt_space_name_group_name(space_name=space_name, group_name=group_name)
+        elif context_tabs and group_name is None:
+            print("used prompt 3")
+            prompt = get_usr_prompt_space_name_context_tabs(space_name=space_name, context_tabs=context_tabs)
+        elif group_name and context_tabs:
+            print("used prompt 4")
+            prompt = get_usr_prompt_space_name_group_name_context_tabs(space_name=space_name, group_name=group_name, context_tabs=context_tabs)
+
+        response = self.openai_client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": "You are a helpful assistant for a browser."},
+                {"role": "user", "content": prompt}
+            ],
+            stream=True,
+            temperature=1.4,
+            max_tokens=512
+        )
+        for chunk in response:
+            if chunk.choices[0].delta.content is not None:
+                yield chunk.choices[0].delta.content
+                await sleep(0.1)
 
     def send_chat_to_perplexity(self, question: str) -> str:
         payload = self.gen_perplexity_payload(question)
