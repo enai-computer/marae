@@ -8,6 +8,7 @@ from app.SecretsService import secretsStore
 from app.provider.openAiPrompts import get_system_prompt, get_usr_prompt_welcome_text, get_usr_prompt_space_name, get_usr_prompt_space_name_group_name, get_usr_prompt_space_name_context_tabs, get_usr_prompt_space_name_group_name_context_tabs
 from app.provider.llamaPrompts import system_prompt_llama_70b, system_prompt_llama_8b_title
 from cerebras.cloud.sdk import Cerebras
+from anthropic import Anthropic
 
 class LLMInterface:
 
@@ -16,6 +17,7 @@ class LLMInterface:
     available_models: List[AIModel] = [
         AIModel(id="gpt-4o", name="OpenAI GPT-4o", description="The latest model from OpenAI."),
         AIModel(id="o1-preview", name="OpenAI o1", description="OpenAI's reasoning model designed to solve hard problems across domains."),
+        AIModel(id="claude-3-5-sonnet", name="Claude 3.5 Sonnet", description="Anthropic's latest model."),
     ]
 
     def __init__(self):
@@ -27,6 +29,9 @@ class LLMInterface:
         # self.perplexity_client = requests.Session()
         self.cerebras_client = Cerebras(
             api_key=secretsStore.secrets["CEREBRAS_API_KEY"]
+        )
+        self.anthropic_client = Anthropic(
+            api_key=secretsStore.secrets["ANTHROPIC_API_KEY"]
         )
 
     def send_chat_to_cerebras(self, question: str, messages: List[AIChatMessage]) -> str:
@@ -93,6 +98,17 @@ class LLMInterface:
         for chunk in response:
             if chunk.choices[0].delta.content is not None:
                 yield chunk.choices[0].delta.content
+                await sleep(0.1)
+
+    async def send_chat_to_anthropic_stream(self, question: str, messages: List[AIChatMessage]):
+        with self.anthropic_client.messages.stream(
+            max_tokens=2048,
+            system=get_system_prompt(),
+            messages=[{"role": msg.role, "content": msg.content} for msg in messages] + [{"role": "user", "content": question}],
+            model="claude-3-5-sonnet-20241022"
+        ) as response:
+            for chunk in response.text_stream:
+                yield chunk
                 await sleep(0.1)
 
     def get_welcome_text(self, space_name: str) -> str:

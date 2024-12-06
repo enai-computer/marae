@@ -8,3 +8,4 @@ openai
 markdown
 posthog
 cerebras_cloud_sdk
+anthropic
