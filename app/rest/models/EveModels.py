@@ -14,6 +14,7 @@ class AnswerPayload(BaseModel):
     question: str
     is_streaming: bool
     model_id: str | None = None
+    context: List[str] | None = None
     messages: List[AIChatMessage]
 
 class WelcomeTextPayload(BaseModel):

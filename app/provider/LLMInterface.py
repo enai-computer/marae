@@ -19,6 +19,7 @@ class LLMInterface:
         AIModel(id="o1-preview", name="OpenAI o1", description="OpenAI's reasoning model designed to solve hard problems across domains."),
         AIModel(id="claude-3-5-sonnet", name="Claude 3.5 Sonnet", description="Anthropic's latest model."),
     ]
+    token_limit = 28000
 
     def __init__(self):
         self.openai_client = OpenAI(
@@ -69,13 +70,15 @@ class LLMInterface:
     async def send_chat_to_openai_gpt4_stream(
         self,
         question: str,
-        messages: List[AIChatMessage]
+        messages: List[AIChatMessage],
+        context: List[str] | None = None
     ):
+        used_tokens = self.count_tokens(messages)
         response = self.openai_client.chat.completions.create(
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": get_system_prompt()},
-            ] + messages + [{"role": "user", "content": question}],
+            ] + messages + [{"role": "user", "content": self.genUserQuestion(question, used_tokens, context)}],
             stream=True
         )
 
@@ -84,6 +87,44 @@ class LLMInterface:
                 yield chunk.choices[0].delta.content
                 await sleep(0.1)
     
+    def genUserQuestion(self, question: str, used_tokens: int, context: List[str] | None = None) -> str:
+        if context is None or len(context) == 0:
+            return question
+        if used_tokens > self.token_limit - 1000:
+            return question
+        # context that fits in the token limit
+        filtered_context = self.filter_context_by_tokens(context, self.token_limit - used_tokens)
+        if not filtered_context:
+            return question
+        
+        return f"The user has following websites open, ordered by most likely to be relevant to the question: {filtered_context}\n\nThe user has asked the following question: {question}"
+
+    def filter_context_by_tokens(self, context: List[str], remaining_tokens: int) -> List[str]:
+        """Filter context items to fit within remaining token limit.
+        Assumes 4 characters per token as a rough approximation."""
+        filtered_context = []
+        tokens_used = 0
+        
+        for item in context:
+            # Estimate tokens for this context item
+            item_tokens = len(item) // 4
+            
+            # Check if adding this item would exceed the limit
+            if tokens_used + item_tokens <= remaining_tokens:
+                filtered_context.append(item)
+                tokens_used += item_tokens
+            else:
+                break
+                
+        return filtered_context
+    
+    def count_tokens(self, messages: List[AIChatMessage]) -> int:
+        """Estimate the number of tokens in a list of messages.
+        This is a rough approximation - on average, 1 token ~= 4 characters in English."""
+        total_chars = sum(len(msg.content) + len(msg.role) for msg in messages)
+        estimated_tokens = total_chars // 4  # rough approximation
+        return estimated_tokens
+
     async def send_chat_to_openai_o1_stream(
         self,
         question: str,
