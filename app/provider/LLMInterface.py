@@ -19,7 +19,7 @@ class LLMInterface:
         AIModel(id="o1-preview", name="OpenAI o1", description="OpenAI's reasoning model designed to solve hard problems across domains."),
         AIModel(id="claude-3-5-sonnet", name="Claude 3.5 Sonnet", description="Anthropic's latest model."),
     ]
-    token_limit = 28000
+    token_limit = 26000
 
     def __init__(self):
         self.openai_client = OpenAI(
@@ -96,8 +96,7 @@ class LLMInterface:
         filtered_context = self.filter_context_by_tokens(context, self.token_limit - used_tokens)
         if not filtered_context:
             return question
-        
-        return f"The user has following websites open, ordered by most likely to be relevant to the question: {filtered_context}\n\nThe user has asked the following question: {question}"
+        return f"The user has following websites open, ordered by most likely to be relevant to the question: <websites> {filtered_context} </websites>\n\nThe user has asked the following question: {question}"
 
     def filter_context_by_tokens(self, context: List[str], remaining_tokens: int) -> List[str]:
         """Filter context items to fit within remaining token limit.
