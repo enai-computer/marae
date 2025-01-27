@@ -140,11 +140,17 @@ class LLMInterface:
                 yield chunk.choices[0].delta.content
                 await sleep(0.1)
 
-    async def send_chat_to_anthropic_stream(self, question: str, messages: List[AIChatMessage]):
+    async def send_chat_to_anthropic_stream(
+        self,
+        question: str,
+        messages: List[AIChatMessage],
+        context: List[str] | None = None
+    ):
+        used_tokens = self.count_tokens(messages)
         with self.anthropic_client.messages.stream(
             max_tokens=2048,
             system=get_system_prompt(),
-            messages=[{"role": msg.role, "content": msg.content} for msg in messages] + [{"role": "user", "content": question}],
+            messages=[{"role": msg.role, "content": msg.content} for msg in messages] + [{"role": "user", "content": self.genUserQuestion(question, used_tokens, context)}],
             model="claude-3-5-sonnet-20241022"
         ) as response:
             for chunk in response.text_stream:
