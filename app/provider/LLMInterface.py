@@ -96,7 +96,7 @@ class LLMInterface:
         filtered_context = self.filter_context_by_tokens(context, self.token_limit - used_tokens)
         if not filtered_context:
             return question
-        return f"The user is interested in the following content from the web. This content is an Enai space, which is generally a collection of information related to a specific project. You can also use it to give you a sense of what the user is trying to focus on at the moment. If it's relevant, please refer to the information directly. <websites> {filtered_context} </websites>\n\nThe user has asked the following question: {question}"
+        return f"The user is interested in the following content from the web. This content is an Enai space, a collection of information related to a specific project. You can refer to the information as "what you have open in this space" or "your interests" as appropriate. Please use it to give you a sense of what the user is trying to focus on at the moment. If it's relevant, please refer to the information directly. <websites> {filtered_context} </websites>\n\nThe user has asked the following question: {question}"
 
     def filter_context_by_tokens(self, context: List[str], remaining_tokens: int) -> List[str]:
         """Filter context items to fit within remaining token limit.
