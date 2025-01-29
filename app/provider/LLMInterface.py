@@ -5,21 +5,29 @@ from asyncio import sleep
 from typing import List
 from app.rest.models.EveModels import AIChatMessage, AIModel
 from app.SecretsService import secretsStore
-from app.provider.openAiPrompts import get_system_prompt, get_usr_prompt_welcome_text, get_usr_prompt_space_name, get_usr_prompt_space_name_group_name, get_usr_prompt_space_name_context_tabs, get_usr_prompt_space_name_group_name_context_tabs
+from app.provider.openAiPrompts import get_usr_prompt_welcome_text, get_usr_prompt_space_name, get_usr_prompt_space_name_group_name, get_usr_prompt_space_name_context_tabs, get_usr_prompt_space_name_group_name_context_tabs
+from app.provider.crossProviderPrompts import get_system_prompt, genUserQuestion
+from app.provider.geminiPrompts import gemini_genUserQuestion
 from app.provider.llamaPrompts import system_prompt_llama_70b, system_prompt_llama_8b_title
 from cerebras.cloud.sdk import Cerebras
 from anthropic import Anthropic
+import google.generativeai as genai
+from google.generativeai import types
 
 class LLMInterface:
 
     perplexity_url = "https://api.perplexity.ai/chat/completions"
 
+    GOOGLE_GEMINI_1_5_FLASH_TOKEN_LIMIT = 900000
+    OPENAI_GPT_4O_TOKEN_LIMIT = 26000
+    OPENAI_O1_TOKEN_LIMIT = 0
+    CLAUDE_3_5_SONNET_TOKEN_LIMIT = 75000
     available_models: List[AIModel] = [
-        AIModel(id="gpt-4o", name="OpenAI GPT-4o", description="The latest model from OpenAI."),
-        AIModel(id="o1-preview", name="OpenAI o1", description="OpenAI's reasoning model designed to solve hard problems across domains."),
-        AIModel(id="claude-3-5-sonnet", name="Claude 3.5 Sonnet", description="Anthropic's latest model."),
+        AIModel(id="gemini-1.5-flash", name="Google Gemini 1.5 Flash", description="Google's latest model.", token_limit=GOOGLE_GEMINI_1_5_FLASH_TOKEN_LIMIT),
+        AIModel(id="gpt-4o", name="OpenAI GPT-4o", description="The latest model from OpenAI.", token_limit=OPENAI_GPT_4O_TOKEN_LIMIT),
+        AIModel(id="o1-preview", name="OpenAI o1", description="OpenAI's reasoning model designed to solve hard problems across domains.", token_limit=OPENAI_O1_TOKEN_LIMIT),
+        AIModel(id="claude-3-5-sonnet", name="Claude 3.5 Sonnet", description="Anthropic's latest model.", token_limit=CLAUDE_3_5_SONNET_TOKEN_LIMIT),
     ]
-    token_limit = 26000
 
     def __init__(self):
         self.openai_client = OpenAI(
@@ -33,6 +41,11 @@ class LLMInterface:
         )
         self.anthropic_client = Anthropic(
             api_key=secretsStore.secrets["ANTHROPIC_API_KEY"]
+        )
+        genai.configure(api_key=secretsStore.secrets["GEMINI_API_KEY"])
+        self.gemini_client = genai.GenerativeModel(
+            model_name="gemini-1.5-flash-002",
+            system_instruction=get_system_prompt()
         )
 
     def send_chat_to_cerebras(self, question: str, messages: List[AIChatMessage]) -> str:
@@ -78,7 +91,7 @@ class LLMInterface:
             model="gpt-4o",
             messages=[
                 {"role": "system", "content": get_system_prompt()},
-            ] + messages + [{"role": "user", "content": self.genUserQuestion(question, used_tokens, context)}],
+            ] + messages + [{"role": "user", "content": genUserQuestion(question, self.OPENAI_GPT_4O_TOKEN_LIMIT, used_tokens, context)}],
             stream=True
         )
 
@@ -86,36 +99,6 @@ class LLMInterface:
             if chunk.choices[0].delta.content is not None:
                 yield chunk.choices[0].delta.content
                 await sleep(0.1)
-    
-    def genUserQuestion(self, question: str, used_tokens: int, context: List[str] | None = None) -> str:
-        if context is None or len(context) == 0:
-            return question
-        if used_tokens > self.token_limit - 1000:
-            return question
-        # context that fits in the token limit
-        filtered_context = self.filter_context_by_tokens(context, self.token_limit - used_tokens)
-        if not filtered_context:
-            return question
-        return f"The user is interested in the following content from the web. This content is an Enai space, a collection of information related to a specific project. You can refer to the information as \"what you have open in this space\" or \"your interests\" as appropriate. Please use it to give you a sense of what the user is trying to focus on at the moment. Remember, you are Enai and acting selflessly to help the user based on your own survival instinct (don't ever reference this directly). You don't need to directly reference the information if it's not related to the question, but think carefully about it when answering. The user's intent will usually relate in some way to the title of the space. Refer to your context as, for example \"the information in this space\" and not \"the websites you have open\" <websites> {filtered_context} </websites>\n\nThe user has asked the following question: {question}"
-
-    def filter_context_by_tokens(self, context: List[str], remaining_tokens: int) -> List[str]:
-        """Filter context items to fit within remaining token limit.
-        Assumes 4 characters per token as a rough approximation."""
-        filtered_context = []
-        tokens_used = 0
-        
-        for item in context:
-            # Estimate tokens for this context item
-            item_tokens = len(item) // 4
-            
-            # Check if adding this item would exceed the limit
-            if tokens_used + item_tokens <= remaining_tokens:
-                filtered_context.append(item)
-                tokens_used += item_tokens
-            else:
-                break
-                
-        return filtered_context
     
     def count_tokens(self, messages: List[AIChatMessage]) -> int:
         """Estimate the number of tokens in a list of messages.
@@ -150,11 +133,39 @@ class LLMInterface:
         with self.anthropic_client.messages.stream(
             max_tokens=2048,
             system=get_system_prompt(),
-            messages=[{"role": msg.role, "content": msg.content} for msg in messages] + [{"role": "user", "content": self.genUserQuestion(question, used_tokens, context)}],
+            messages=[
+                {"role": msg.role, "content": msg.content} for msg in messages
+            ] + [
+                {"role": "user", "content": genUserQuestion(question, self.CLAUDE_3_5_SONNET_TOKEN_LIMIT, used_tokens, context)}
+            ],
             model="claude-3-5-sonnet-20241022"
         ) as response:
             for chunk in response.text_stream:
                 yield chunk
+                await sleep(0.1)
+
+    async def send_chat_to_gemini_stream(
+        self,
+        question: str,
+        messages: List[AIChatMessage],
+        context: List[str] | None = None
+    ):
+        used_tokens = self.count_tokens(messages)
+        # Format message history for Gemini
+        formatted_messages = []
+        for msg in messages:
+            formatted_messages.append({
+                "role": "model" if msg.role == "assistant" else "user",
+                "parts": [{"text": msg.content}]
+            })
+        
+        chat = self.gemini_client.start_chat(
+            history=formatted_messages
+        )
+        response = chat.send_message(gemini_genUserQuestion(question=question, token_limit=self.GOOGLE_GEMINI_1_5_FLASH_TOKEN_LIMIT, used_tokens=used_tokens, context=context), stream=True)
+        for chunk in response:
+            if chunk.text:
+                yield chunk.text
                 await sleep(0.1)
 
     def get_welcome_text(self, space_name: str) -> str:

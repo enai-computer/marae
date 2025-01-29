@@ -9,3 +9,4 @@ markdown
 posthog
 cerebras_cloud_sdk
 anthropic
+google-generativeai

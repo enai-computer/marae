@@ -5,6 +5,7 @@ class AIModel(BaseModel):
     id: str
     name: str
     description: str
+    token_limit: int
 
 class AIChatMessage(BaseModel):
     role: str

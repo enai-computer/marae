@@ -26,7 +26,8 @@ class SecretsService:
             "PRIVATE_KEY_PATH": os.getenv("PRIVATE_KEY_PATH"),
             "POSTHOG_API_KEY": os.getenv("POSTHOG_API_KEY"),
             "CEREBRAS_API_KEY": os.getenv("CEREBRAS_API_KEY"),
-            "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY")
+            "ANTHROPIC_API_KEY": os.getenv("ANTHROPIC_API_KEY"),
+            "GEMINI_API_KEY": os.getenv("GEMINI_API_KEY")
         }
 
     def fetch_secrets_from_aws(self):
