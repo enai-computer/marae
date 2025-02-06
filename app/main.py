@@ -1,8 +1,15 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 from .rest.v1 import AuthResource, VersionResource, EveResource
+from app.provider.unternet.appletManager import init_applet_manager
 
-webServer = FastAPI()
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    await init_applet_manager()
+    yield
+
+webServer = FastAPI(lifespan=lifespan)
 webServer.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
