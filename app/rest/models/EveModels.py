@@ -24,7 +24,7 @@ class AnswerPayload(BaseModel):
     model_id: str | None = None
     context: List[str] | None = None
     messages: List[AIChatMessage]
-    allowed_responses_types: List[AIChatMessageType] = [AIChatMessageType.TEXT]
+    allowed_responses_types: List[AIChatMessageType] | None = None
 
 class WelcomeTextPayload(BaseModel):
     space_name: str

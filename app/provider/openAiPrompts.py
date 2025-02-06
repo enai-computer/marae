@@ -1,4 +1,16 @@
 from typing import List
+from app.rest.models.EveModels import AIChatMessageType
+
+def get_system_prompt_with_tool_choice(allowed_responses_types: List[AIChatMessageType]) -> str:
+    # return f"""
+    #     In this environment you have access to a set of tools you can use to answer the user's question.
+    #     Here are the functions available in JSONSchema format:
+    #     ${JSON.stringify(actions)}
+    #     With the above available tools in mind, choose from one of the following strategies to use while handling the user's query:
+    #     ${JSON.stringify(strategies)}\
+    # """
+    return f"""
+    """
 
 def get_usr_prompt_welcome_text(space_name: str) -> str:
     return f"""

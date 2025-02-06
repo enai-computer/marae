@@ -39,7 +39,8 @@ async def answer(
         messages=payload.messages,
         is_streaming=payload.is_streaming,
         model_id=payload.model_id,
-        context=payload.context
+        context=payload.context,
+        allowed_responses_types=payload.allowed_responses_types
     )
 
 @router.get("/{user_id}/welcome-text")

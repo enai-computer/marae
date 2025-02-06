@@ -3,14 +3,16 @@ from openai import OpenAI
 import os
 from asyncio import sleep
 from typing import List
-from app.rest.models.EveModels import AIChatMessage, AIModel
+from app.rest.models.EveModels import AIChatMessage, AIChatMessageType
 from app.provider.crossProviderPrompts import get_system_prompt, genUserQuestion
-from app.provider.openAiPrompts import get_usr_prompt_welcome_text, get_usr_prompt_space_name, get_usr_prompt_space_name_group_name, get_usr_prompt_space_name_context_tabs, get_usr_prompt_space_name_group_name_context_tabs
+from app.provider.openAiPrompts import get_usr_prompt_welcome_text, get_usr_prompt_space_name, get_usr_prompt_space_name_group_name, get_usr_prompt_space_name_context_tabs, get_usr_prompt_space_name_group_name_context_tabs, get_system_prompt_with_tool_choice
 from app.SecretsService import secretsStore
+from app.provider.unternet.appletManager import gAppletManager
 
 class OpenAiInterface:
 
     def __init__(self):
+        print("init openai interface")
         self.openai_client = OpenAI(
             api_key=secretsStore.secrets["OPENAI_API_KEY"],
             organization=secretsStore.secrets["OPENAI_ORG_ID"],
@@ -88,6 +90,22 @@ class OpenAiInterface:
                 yield chunk.choices[0].delta.content
                 await sleep(0.1)
 
+    async def send_chat_with_tool_calls(
+        self,
+        question: str,
+        messages: List[AIChatMessage],
+        allowed_responses_types: List[AIChatMessageType],
+        context: List[str] | None = None,
+    ):
+        used_tokens = self.count_tokens(messages)
+        # TODO: consider calling mini first and make a decision on the tool before calling gpt-4o
+        response = self.openai_client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages + [
+                {"role": "system", "content": get_system_prompt_with_tool_choice(allowed_responses_types)},
+            ] + [{"role": "user", "content": question}],
+            tools=gAppletManager.openAI_tools
+        )
     
     async def send_chat_to_openai_o1_stream(
         self,
