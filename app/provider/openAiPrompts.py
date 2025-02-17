@@ -1,7 +1,7 @@
 from typing import List
 from app.rest.models.EveModels import AIChatMessageType
 
-def get_system_prompt_with_tool_choice(allowed_responses_types: List[AIChatMessageType]) -> str:
+def get_system_prompt_with_tool_choice() -> str:
     # return f"""
     #     In this environment you have access to a set of tools you can use to answer the user's question.
     #     Here are the functions available in JSONSchema format:

@@ -12,6 +12,7 @@ from cerebras.cloud.sdk import Cerebras
 from anthropic import Anthropic
 import google.generativeai as genai
 from google.generativeai import types
+from app.provider.utils import count_tokens
 
 class LLMInterface:
 
@@ -63,20 +64,13 @@ class LLMInterface:
         )
         return completion.choices[0].message.content
     
-    def count_tokens(self, messages: List[AIChatMessage]) -> int:
-        """Estimate the number of tokens in a list of messages.
-        This is a rough approximation - on average, 1 token ~= 4 characters in English."""
-        total_chars = sum(len(msg.content) + len(msg.role) for msg in messages)
-        estimated_tokens = total_chars // 4  # rough approximation
-        return estimated_tokens
-
     async def send_chat_to_anthropic_stream(
         self,
         question: str,
         messages: List[AIChatMessage],
         context: List[str] | None = None
     ):
-        used_tokens = self.count_tokens(messages)
+        used_tokens = count_tokens(messages)
         with self.anthropic_client.messages.stream(
             max_tokens=2048,
             system=get_system_prompt(),
@@ -97,7 +91,7 @@ class LLMInterface:
         messages: List[AIChatMessage],
         context: List[str] | None = None
     ):
-        used_tokens = self.count_tokens(messages)
+        used_tokens = count_tokens(messages)
         # Format message history for Gemini
         formatted_messages = []
         for msg in messages:

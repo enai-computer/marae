@@ -1,6 +1,5 @@
 from pydantic import BaseModel
 from typing import List
-import enum
 
 class AIModel(BaseModel):
     id: str
@@ -8,15 +7,9 @@ class AIModel(BaseModel):
     description: str
     token_limit: int
 
-class AIChatMessageType(enum.Enum):
-    TEXT = "TEXT"
-    SEARCH = "SEARCH"
-    DISPLAY = "DISPLAY"
-
 class AIChatMessage(BaseModel):
     role: str
     content: str
-    type: AIChatMessageType
 
 class AnswerPayload(BaseModel):
     question: str
@@ -24,7 +17,6 @@ class AnswerPayload(BaseModel):
     model_id: str | None = None
     context: List[str] | None = None
     messages: List[AIChatMessage]
-    allowed_responses_types: List[AIChatMessageType] | None = None
 
 class WelcomeTextPayload(BaseModel):
     space_name: str
