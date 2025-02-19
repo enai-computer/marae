@@ -2,7 +2,7 @@ from .provider.LLMInterface import LLMInterface
 from .provider.openAiInterface import OpenAiInterface
 from fastapi.responses import StreamingResponse
 from typing import List
-from app.rest.models.EveModels import AIChatMessage, AIChatMessageType
+from app.rest.models.EveModels import AIChatMessage
 from app.rest.models.EveModelsV2 import ChatPayload
 class AnswerEngine:
 
@@ -39,7 +39,6 @@ class AnswerEngine:
         return ' '.join(words[:5])
 
 # MARK: - V2
-
     def get_answer_v2(self, payload: ChatPayload):
         match payload.model_id:
             case _:

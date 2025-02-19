@@ -4,7 +4,7 @@ import os
 from asyncio import sleep
 from typing import List
 from app.rest.models.EveModels import AIChatMessage
-from app.rest.models.EveModelsV2 import ChatPayload
+from app.rest.models.EveModelsV2 import ChatPayload, AIChatMessageV2, AIChatMessageType, AIChatMessageV2AppletContent
 from app.provider.crossProviderPrompts import get_system_prompt, genUserQuestion
 from app.provider.openAiPrompts import get_usr_prompt_welcome_text, get_usr_prompt_space_name, get_usr_prompt_space_name_group_name, get_usr_prompt_space_name_context_tabs, get_usr_prompt_space_name_group_name_context_tabs, get_system_prompt_with_tool_choice
 from app.SecretsService import secretsStore
@@ -96,15 +96,25 @@ class OpenAiInterface:
         self,
         payload: ChatPayload
     ):
-        used_tokens = count_tokens(payload.messages)
-        # TODO: consider calling mini first and make a decision on the tool before calling gpt-4o
-        response = self.openai_client.chat.completions.create(
-            model="gpt-4o",
-            messages=payload.messages + [
+        # used_tokens = count_tokens(payload.messages)
+        # # TODO: consider calling mini first and make a decision on the tool before calling gpt-4o
+        # response = self.openai_client.chat.completions.create(
+        #     model="gpt-4o",
+        #     messages=payload.messages + [
                 
-                {"role": "system", "content": get_system_prompt_with_tool_choice()},
-            ] + [{"role": "user", "content": payload.question}],
-            tools=gAppletManager.openAI_tools
+        #         {"role": "system", "content": get_system_prompt_with_tool_choice()},
+        #     ] + [{"role": "user", "content": payload.question}],
+        #     tools=gAppletManager.openAI_tools
+        # )
+        return AIChatMessageV2(
+            role="assistant",
+            type=AIChatMessageType.APPLET,
+            content=AIChatMessageV2AppletContent(
+                applet_url="https://applets.unternet.co/maps",
+                content={
+                    "query": "Auckland"
+                }
+            )
         )
     
     async def send_chat_to_openai_o1_stream(

@@ -1,5 +1,4 @@
 from typing import List
-from app.rest.models.EveModels import AIChatMessageType
 
 def get_system_prompt_with_tool_choice() -> str:
     # return f"""

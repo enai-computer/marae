@@ -17,5 +17,5 @@ posthog = Posthog(secretsStore.secrets["POSTHOG_API_KEY"], host='https://eu.i.po
 
 @router.post("/{user_id}/chat")
 async def get_answer(user_id: UUID, answer_engine: Annotated[AnswerEngine, Depends(AnswerEngine)], payload: ChatPayload):
-    posthog.capture(user_id, event="asked_en-ai", properties={"ui-component": "new-tab", "model_id": payload.model_id})
-    return answer_engine.
+    # posthog.capture(user_id, event="asked_en-ai", properties={"ui-component": "new-tab", "model_id": payload.model_id})
+    return answer_engine.get_answer_v2(payload)
