@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Union
 import enum
 
 
@@ -8,22 +8,19 @@ class AIChatMessageType(enum.Enum):
     TEXT = "TEXT"
     APPLET = "APPLET"
 
-class AIChatMessageV2Content(BaseModel):
-    pass
-
-class AIChatMessageV2AppletContent(AIChatMessageV2Content):
+class AIChatMessageV2AppletContent(BaseModel):
     applet_url: str
     content: Dict[str, Any]
 
-class AIChatMessageV2TextContent(AIChatMessageV2Content):
+class AIChatMessageV2TextContent(BaseModel):
     text: str
 
 class AIChatMessageV2(BaseModel):
     role: str
     type: AIChatMessageType
-    content: AIChatMessageV2Content
+    content: Union[AIChatMessageV2AppletContent, AIChatMessageV2TextContent]
 
-    def encode(self, charset: str = 'utf-8') -> bytes:
+    def encode(self, charset: str = 'utf-8'):
         return self.model_dump_json().encode(charset)
     
 class QuestionContext(BaseModel):
