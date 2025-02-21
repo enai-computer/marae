@@ -4,10 +4,12 @@ from contextlib import asynccontextmanager
 from .rest.v1 import AuthResource, VersionResource, EveResource
 from .rest.v2 import EveResource as EveResourceV2
 from app.provider.unternet.appletManager import init_applet_manager
+from app.AnswerEngine import init_answer_engine
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    await init_applet_manager()
+    app.state.applet_manager = await init_applet_manager()
+    app.state.answer_engine = await init_answer_engine()
     yield
 
 webServer = FastAPI(lifespan=lifespan)
@@ -16,6 +18,7 @@ webServer.add_middleware(
     allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
+    max_age=7200,
 )
 webServer.include_router(AuthResource.router)
 webServer.include_router(VersionResource.router)

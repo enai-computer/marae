@@ -4,9 +4,16 @@ from fastapi.responses import StreamingResponse
 from typing import List
 from app.rest.models.EveModels import AIChatMessage
 from app.rest.models.EveModelsV2 import ChatPayload
+
+
+async def init_answer_engine():
+    print("starting to initialize answer engine")
+    return AnswerEngine()
+
 class AnswerEngine:
 
     def __init__(self):
+        print("init answer engine")
         self.llm_interface = LLMInterface()
         self.openai_interface = OpenAiInterface()
     
