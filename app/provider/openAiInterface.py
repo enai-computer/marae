@@ -106,7 +106,7 @@ class OpenAiInterface:
         #     ] + [{"role": "user", "content": payload.question}],
         #     tools=gAppletManager.openAI_tools
         # )
-        return AIChatMessageV2(
+        response = AIChatMessageV2(
             role="assistant",
             type=AIChatMessageType.APPLET,
             content=AIChatMessageV2AppletContent(
@@ -116,6 +116,7 @@ class OpenAiInterface:
                 }
             )
         )
+        yield response
     
     async def send_chat_to_openai_o1_stream(
         self,
