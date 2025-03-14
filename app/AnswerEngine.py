@@ -49,5 +49,5 @@ class AnswerEngine:
     def get_answer_v2(self, payload: ChatPayload):
         match payload.model_id:
             case _:
-                return StreamingResponse(self.openai_interface.send_chat_with_tool_calls(payload), media_type="text/event-stream")
+                return StreamingResponse(self.openai_interface.send_chat_with_tool_calls(payload))
         

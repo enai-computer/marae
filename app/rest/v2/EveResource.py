@@ -24,8 +24,6 @@ router = APIRouter(
 
 posthog = Posthog(secretsStore.secrets["POSTHOG_API_KEY"], host='https://eu.i.posthog.com')
 
-
 @router.post("/{user_id}/chat")
 async def get_answer(user_id: UUID, payload: ChatPayload):
-    print(f'answer engine: {answerEngine}')
     return answerEngine.get_answer_v2(payload)

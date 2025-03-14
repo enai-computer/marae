@@ -23,7 +23,7 @@ async def lifespan(app: FastAPI):
 router = APIRouter(
     prefix="/v1", 
     tags=["v1"],
-    dependencies=[Depends(get_current_user)],
+    # dependencies=[Depends(get_current_user)],
     lifespan=lifespan
     )
 
